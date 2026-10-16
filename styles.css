@@ -40,7 +40,7 @@
   align-items: center;
   gap: 64px;
   width: max-content;
-  animation: logo-scroll 120s linear infinite;
+  animation: logo-scroll 150s linear infinite;
 }
 
 .logo-list img {
