@@ -38,7 +38,7 @@
 .logo-list {
   display: flex;
   align-items: center;
-  gap: 64px;
+  gap: 32px;
   width: max-content;
   animation: logo-scroll 150s linear infinite;
 }
@@ -50,6 +50,9 @@
     max-width: 180px;
     object-fit: contain;
     flex-shrink: 0;
+    box-sizing: content-box;
+    padding-right: 32px;
+    border-right: 1px dotted rgba(11, 23, 42, 0.25);
 }
 .logo-list img[alt="M performance"] {
     height: 84px;
