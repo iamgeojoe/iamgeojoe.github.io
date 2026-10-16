@@ -44,12 +44,12 @@
 }
 
 .logo-list img {
-  display: block;
-  width: auto;
-  height: 48px;
-  max-width: 150px;
-  object-fit: contain;
-  flex-shrink: 0;
+    display: block;
+    width: auto;
+    height: 64px;
+    max-width: 180px;
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
 .logo-track:hover .logo-list {
