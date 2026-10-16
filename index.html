@@ -32,8 +32,133 @@
   </p>
 
   <div class="logo-track">
-    <div class="logo-list">
-      <img src="assets/portfolio-logos/zoho-corporation-original.svg" alt="Zoho" loading="lazy">
+  <div class="logo-list"></div>
+</div>
+
+<script>
+(function () {
+  const logoFiles = [
+    "3m-original.svg",
+    "Amg-gt-original.svg",
+    "Disney.svg",
+    "Epic Games-original.svg",
+    "LAMBO Bull-original-1024.png",
+    "M performance -original.svg",
+    "PS-original.svg",
+    "United_Parcel_Service_logo_2014.svg.webp",
+    "adobe-original.svg",
+    "airbnb-original.svg",
+    "american-airlines-original.svg",
+    "american-broadcasting-company-original.svg",
+    "american-express-original.svg",
+    "audi-ag-original.svg",
+    "bank-of-america-original.svg",
+    "blackrock-original.svg",
+    "bmw-original.svg",
+    "boeing-original.svg",
+    "bugatti-original.svg",
+    "cadillac-original.svg",
+    "capital-one-original.svg",
+    "caterpillar-inc-original.svg",
+    "chevrolet-original.svg",
+    "chevron-corporation-original.svg",
+    "church-dwight-original.svg",
+    "cnn-original.svg",
+    "coca-cola-original.svg",
+    "colgate-original.svg",
+    "conocophillips-original.svg",
+    "cummins-original.svg",
+    "dc-comics-original.svg",
+    "delta-air-lines-original.svg",
+    "dodge-original.svg",
+    "ducati-original.svg",
+    "duke-energy-original.svg",
+    "ea-sports-original.svg",
+    "emirates-thesvg-color.svg",
+    "espn-original.svg",
+    "fedex-original.svg",
+    "ford-motor-company-original.svg",
+    "gap-inc-original.svg",
+    "general-electric-original.svg",
+    "general-motors-original.svg",
+    "google-original.svg",
+    "googlecloud-thesvg-color.svg",
+    "groupon-original.svg",
+    "harley-davidson-original.svg",
+    "honda-original.svg",
+    "indian-motorcycle-original.svg",
+    "intel-original.svg",
+    "jeep-original.svg",
+    "johnson-johnson-original.svg",
+    "jpmorgan-chase-original.svg",
+    "kawasaki-original.svg",
+    "kellogg-s-original.svg",
+    "lamborghini-original.svg",
+    "levi-strauss-co-original.svg",
+    "lg-thesvg-color.svg",
+    "lucid-motors-original.svg",
+    "macy-s-original.svg",
+    "mahindra-mahindra-mahindra-logo.svg",
+    "marathon-petroleum-original.svg",
+    "marvel-comics-original.svg",
+    "mercedes-benz-original.svg",
+    "ministry-of-culture-of-slovenia-original.svg",
+    "mondelez-international-original.svg",
+    "nestle-original.svg",
+    "netflix-original.svg",
+    "new-balance-original.svg",
+    "nike-original.svg",
+    "nintendo-original.svg",
+    "paramount-original.svg",
+    "pepsico-original.svg",
+    "procter-gamble-original.svg",
+    "ralph-lauren-corporation-original.svg",
+    "revlon-original.svg",
+    "roblox-original.svg",
+    "rogers-original.svg",
+    "shopify-thesvg-color.svg",
+    "skechers-original.svg",
+    "sony-group-original.svg",
+    "southwest-airlines-original.svg",
+    "state-street-corporation-original.svg",
+    "target-corporation-original.svg",
+    "tesla-original.svg",
+    "the-hershey-company-original.svg",
+    "the-vanguard-group-original.svg",
+    "uber-original.svg",
+    "under-armour-original.svg",
+    "union-pacific-corporation-original.svg",
+    "united-airlines-original.svg",
+    "universal-music-group-original.svg",
+    "visa-inc-original.svg",
+    "volkswagen-volkswagen-logo.svg",
+    "warner-bros-entertainment-original.svg",
+    "whirlpool-original.svg",
+    "xbox-game-studios-original.svg",
+    "zoho-corporation-original.svg"
+  ];
+
+  const logoList = document.querySelector(".logo-list");
+
+  if (!logoList) return;
+
+  // Create the original logo sequence.
+  logoFiles.forEach(function (file) {
+    const img = document.createElement("img");
+    img.src = "assets/portfolio-logos/" + encodeURIComponent(file);
+    img.alt = file
+      .replace(/\.[^.]+$/, "")
+      .replace(/[-_]+/g, " ")
+      .trim();
+    img.loading = "lazy";
+    img.decoding = "async";
+    logoList.appendChild(img);
+  });
+
+  // Duplicate the sequence for continuous scrolling.
+  logoList.innerHTML += logoList.innerHTML;
+})();
+</script>
     </div>
   </div>
 </section>
