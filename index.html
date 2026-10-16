@@ -43,7 +43,7 @@
     "Disney.svg",
     "Epic Games-original.svg",
     "LAMBO Bull-original-1024.png",
-    "M performance -original.svg",
+    "m-performance.svg",
     "PS-original.svg",
     "United_Parcel_Service_logo_2014.svg.webp",
     "adobe-original.svg",
@@ -145,7 +145,7 @@
   // Create the original logo sequence.
   logoFiles.forEach(function (file) {
     const img = document.createElement("img");
-    img.src = "assets/portfolio-logos/" + encodeURIComponent(file);
+    img.src = "assets/portfolio-logos/" + file.split("/").map(encodeURIComponent).join("/");
     img.alt = file
       .replace(/\.[^.]+$/, "")
       .replace(/[-_]+/g, " ")
