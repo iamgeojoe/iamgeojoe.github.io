@@ -146,40 +146,80 @@
   border-right: none !important;
 }
 
-.logo-reel-track.is-spinning {
-  transform: translateY(-50%);
-  transition: transform 850ms cubic-bezier(0.22, 0.75, 0.25, 1);
+/* Slot-machine logo animation */
+.logo-reel-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    align-items: center;
+}
+
+.logo-reel {
+    height: 100px;
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px dotted rgba(11, 23, 42, 0.22);
+}
+
+.logo-reel:last-child {
+    border-right: none;
+}
+
+.logo-reel-track {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translateY(0);
+    will-change: transform;
+}
+
+.logo-reel-track img {
+    display: block;
+    width: 100%;
+    height: 100px;
+    max-width: 100% !important;
+    padding: 16px;
+    object-fit: contain;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 @media (max-width: 900px) {
-  .logo-list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
+    .logo-reel-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 
-  .logo-reel {
-    height: 90px;
-  }
+    .logo-reel {
+        height: 90px;
+    }
 
-  .logo-reel-track img {
-    height: 90px;
-    padding: 12px;
-  }
+    .logo-reel-track img {
+        height: 90px;
+    }
 }
 
 @media (max-width: 480px) {
-  .logo-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+    .logo-reel-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
 
-  .logo-reel {
-    height: 82px;
-  }
+    .logo-reel {
+        height: 82px;
+    }
 
-  .logo-reel-track img {
-    height: 82px;
-    padding: 10px;
-  }
+    .logo-reel-track img {
+        height: 82px;
+        padding: 10px;
+    }
 }
+
+
 
 @media (prefers-reduced-motion: reduce) {
   .logo-reel-track,
