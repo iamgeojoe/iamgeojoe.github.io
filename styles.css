@@ -51,7 +51,10 @@
     object-fit: contain;
     flex-shrink: 0;
 }
-
+.logo-list img[alt="M performance"] {
+    height: 84px;
+    max-width: 220px;
+}
 .logo-track:hover .logo-list {
   animation-play-state: paused;
 }
