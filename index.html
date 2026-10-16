@@ -138,26 +138,87 @@
     "zoho-corporation-original.svg"
   ];
 
+  
   const logoList = document.querySelector(".logo-list");
+  if (!logoList || logoFiles.length === 0) return;
 
-  if (!logoList) return;
+  const columns = 5;
+  const logoHeight = 100;
+  const spinDuration = 1800;
+  const pauseDuration = 2200;
 
-  // Create the original logo sequence.
-  logoFiles.forEach(function (file) {
+  function randomLogo() {
+    return logoFiles[Math.floor(Math.random() * logoFiles.length)];
+  }
+
+  function createLogo(file) {
     const img = document.createElement("img");
-    img.src = "assets/portfolio-logos/" + file.split("/").map(encodeURIComponent).join("/");
-    img.alt = file
-      .replace(/\.[^.]+$/, "")
-      .replace(/[-_]+/g, " ")
-      .trim();
-    img.loading = "lazy";
-    img.decoding = "async";
-    logoList.appendChild(img);
-  });
+    img.src = "assets/portfolio-logos/" + file;
+    img.alt = file.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+    img.loading = "eager";
+    return img;
+  }
 
-  // Duplicate the sequence for continuous scrolling.
-  logoList.innerHTML += logoList.innerHTML;
-})();
+  logoList.innerHTML = "";
+  logoList.classList.add("logo-reel-grid");
+
+  for (let i = 0; i < columns; i++) {
+    const reel = document.createElement("div");
+    reel.className = "logo-reel";
+
+    const track = document.createElement("div");
+    track.className = "logo-reel-track";
+
+    track.appendChild(createLogo(logoFiles[i]));
+
+    reel.appendChild(track);
+    logoList.appendChild(reel);
+
+    function spin() {
+      const sequence = Array.from(
+        { length: 13 },
+        () => randomLogo()
+      );
+
+      track.innerHTML = "";
+
+      sequence.forEach(file => {
+        track.appendChild(createLogo(file));
+      });
+
+      track.style.transition = "none";
+      track.style.transform = "translateY(0)";
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const firstImage = track.querySelector("img");
+          if (!firstImage) return;
+
+          const step = firstImage.getBoundingClientRect().height;
+          const distance = step * (sequence.length - 1);
+          const duration = spinDuration + i * 350;
+
+          track.style.transition =
+            `transform ${duration}ms cubic-bezier(0.12, 0.75, 0.18, 1)`;
+
+          track.style.transform = `translateY(-${distance}px)`;
+
+          setTimeout(() => {
+            const winningLogo = sequence[sequence.length - 1];
+
+            track.style.transition = "none";
+            track.style.transform = "translateY(0)";
+            track.innerHTML = "";
+            track.appendChild(createLogo(winningLogo));
+
+            setTimeout(spin, pauseDuration);
+          }, duration + 50);
+        });
+      });
+    }
+
+    setTimeout(spin, 800 + i * 300);
+  }
 </script>
     </div>
   </div>
