@@ -94,7 +94,7 @@
 .logo-reel-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 12px;
+    gap: 0px;
     width: 100%;
     align-items: center;
 }
