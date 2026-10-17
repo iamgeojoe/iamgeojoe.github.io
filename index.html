@@ -227,18 +227,16 @@ async function spinColumn(index) {
     winner
   ];
 
-  const loaded = (await Promise.all(sequence.map(loadLogo)))
-    .filter(Boolean);
+  const loaded = await Promise.all(sequence.map(loadLogo));
 
-  if (
-    loaded.length < 2 ||
-    loaded[0].file !== currentLogo ||
-    loaded[loaded.length - 1].file !== winner
-  ) {
-    setTimeout(() => spinColumn(index), 1500);
-    return;
-  }
-
+if (
+  loaded.some(item => !item) ||
+  loaded[0].file !== currentLogo ||
+  loaded[loaded.length - 1].file !== winner
+) {
+  setTimeout(() => spinColumn(index), 1800);
+  return;
+}
   track.style.transition = "none";
   track.style.transform = "translateY(0)";
   track.replaceChildren(...loaded.map(item => item.img));
