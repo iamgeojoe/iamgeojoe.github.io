@@ -1,39 +1,65 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="George — Sales, SaaS, Business Development and Partnerships professional.">
 <title>George | Sales • SaaS • Partnerships • Growth</title>
 <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-<header><a class="brand" href="#top">GEORGE</span></a>
-<nav><a href="#about">About</a><a href="#expertise">Expertise</a><a href="#experience">Experience</a><a href="#contact">Contact</a></nav>
-<a class="pill" href="#contact">Let's Connect</a></header>
+
+<header>
+  <a class="brand" href="#top">GEORGE</a>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#expertise">Expertise</a>
+    <a href="#experience">Experience</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <a class="pill" href="#contact">Let's Connect</a>
+</header>
 
 <main id="top">
+
 <section class="hero">
-<div><p class="eyebrow">B2B SALES • SAAS • BUSINESS DEVELOPMENT • PARTNERSHIPS</p>
-<h1>Sales.<br><i>SaaS.</i><br>Partnerships.<br>Growth.</h1>
-<p class="lead">Building relationships. Creating opportunities. Growing businesses.</p>
-<div class="actions"><a class="btn dark" href="#experience">View My Experience</a><a class="btn" href="#contact">Let's Connect ↗</a></div></div>
-<div class="photo"><div class="photoBox"><img src="assets/profile.jpg" alt="George — Sales, SaaS and Business Development professional"></div><div class="caption">Business Development <span>SaaS & Partnerships</span></div></div>
+  <div>
+    <p class="eyebrow">B2B SALES • SAAS • BUSINESS DEVELOPMENT • PARTNERSHIPS</p>
+    <h1>Sales.<br><i>SaaS.</i><br>Partnerships.<br>Growth.</h1>
+    <p class="lead">Building relationships. Creating opportunities. Growing businesses.</p>
+    <div class="actions">
+      <a class="btn dark" href="#experience">View My Experience</a>
+      <a class="btn" href="#contact">Let's Connect ↗</a>
+    </div>
+  </div>
+
+  <div class="photo">
+    <div class="photoBox">
+      <img src="assets/profile.jpg" alt="George — Sales, SaaS and Business Development professional">
+    </div>
+    <div class="caption">Business Development <span>SaaS & Partnerships</span></div>
+  </div>
 </section>
 
-<section id="about" class="section intro"><div class="label">01 / ABOUT</div><div><h2>I build business through <em>people, partnerships and possibilities.</em></h2>
-<p>I’m a sales and business development professional focused on SaaS, technology and strategic partnerships. I help businesses turn conversations into opportunities, opportunities into relationships, and relationships into sustainable growth.</p>
-<p>Over the years, my work has centered on understanding customer needs, creating commercial opportunities and building partnerships that make sense for both sides. I believe strong business is built on trust, clarity and consistent execution.</p></div></section>
+<section id="about" class="section intro">
+  <div class="label">01 / ABOUT</div>
+  <div>
+    <h2>I build business through <em>people, partnerships and possibilities.</em></h2>
+    <p>I’m a sales and business development professional focused on SaaS, technology and strategic partnerships. I help businesses turn conversations into opportunities, opportunities into relationships, and relationships into sustainable growth.</p>
+    <p>Over the years, my work has centered on understanding customer needs, creating commercial opportunities and building partnerships that make sense for both sides. I believe strong business is built on trust, clarity and consistent execution.</p>
+  </div>
+</section>
 
 <section class="logo-section">
   <div class="label">02 / COMPANIES &amp; PARTNERSHIPS</div>
   <h2>Connected through <em>business and technology.</em></h2>
-  <p class="logo-intro">
-    Building relationships across technology, business and industry.
-  </p>
+  <p class="logo-intro">Building relationships across technology, business and industry.</p>
 
   <div class="logo-track">
-  <div class="logo-list"></div>
-</div>
+    <div class="logo-list"></div>
+  </div>
+</section>
 
 <script>
 (function () {
@@ -138,213 +164,419 @@
     "zoho-corporation-original.svg"
   ];
 
-  
   const logoList = document.querySelector(".logo-list");
-if (!logoList || !logoFiles.length) return;
 
-const columns = 5;
+  if (!logoList || logoFiles.length === 0) return;
 
-const randomBetween = (min, max) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
+  const COLUMNS = 5;
+  const LOGO_HEIGHT = 100;
+  const MIN_SPIN_MS = 4000;
+  const MAX_SPIN_MS = 5000;
 
-function shuffle(items) {
-  const result = [...items];
+  const randomBetween = (min, max) =>
+    Math.floor(Math.random() * (max - min + 1)) + min;
 
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
+  function shuffle(items) {
+    const result = [...items];
 
-  return result;
-}
-
-function loadLogo(file) {
-  return new Promise(resolve => {
-    const img = new Image();
-
-    img.alt = file.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ");
-    img.onload = () => resolve({ file, img });
-    img.onerror = () => resolve(null);
-    img.src = "assets/portfolio-logos/" + file;
-  });
-}
-
-async function initialiseLogos() {
-  logoList.innerHTML = "";
-  logoList.classList.add("logo-reel-grid");
-
-  const available = shuffle(logoFiles);
-  const current = available.slice(0, columns);
-  const reels = [];
-
-  // Load the first five logos before displaying the columns.
-  const initialLogos = await Promise.all(current.map(loadLogo));
-
-  if (initialLogos.some(item => !item)) {
-    console.error("Some initial logos failed to load.");
-    return;
-  }
-
-  for (let i = 0; i < columns; i++) {
-    const reel = document.createElement("div");
-    reel.className = "logo-reel";
-
-    const track = document.createElement("div");
-    track.className = "logo-reel-track";
-
-    track.appendChild(initialLogos[i].img);
-    reel.appendChild(track);
-    logoList.appendChild(reel);
-
-    reels.push(track);
-  }
-
-  async function spinColumn(index) {
-    const track = reels[index];
-    const currentLogo = current[index];
-
-    // Keep the five stationary logos unique.
-    const occupied = new Set(
-      current.filter((file, i) => i !== index)
-    );
-
-    const pool = shuffle(
-      logoFiles.filter(
-        file => !occupied.has(file) && file !== currentLogo
-      )
-    );
-
-    if (pool.length < 2) {
-      setTimeout(() => spinColumn(index), 2000);
-      return;
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
     }
 
-    const winner = pool[pool.length - 1];
+    return result;
+  }
 
-    const sequence = [
-      currentLogo,
-      ...pool.slice(0, Math.min(10, pool.length - 1)),
-      winner
-    ];
+  function loadLogo(file) {
+    return new Promise(resolve => {
+      const img = new Image();
 
-    const loaded = await Promise.all(sequence.map(loadLogo));
+      img.alt = file.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ");
+      img.decoding = "async";
 
-    if (
-      loaded.some(item => !item) ||
-      loaded[0].file !== currentLogo ||
-      loaded[loaded.length - 1].file !== winner
-    ) {
-      setTimeout(() => spinColumn(index), 1800);
-      return;
-    }
+      let resolved = false;
 
-    track.style.transition = "none";
-    track.style.transform = "translateY(0)";
-    track.replaceChildren(...loaded.map(item => item.img));
+      function finish(result) {
+        if (resolved) return;
+        resolved = true;
+        resolve(result);
+      }
 
-    const step = 100;
-    const distance = step * (loaded.length - 1);
-    const duration = randomBetween(4000, 5000);
+      img.onload = () => finish({ file, img });
+      img.onerror = () => finish(null);
+      img.src = "assets/portfolio-logos/" + file;
 
-    track.getBoundingClientRect();
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        track.style.transition =
-          `transform ${duration}ms cubic-bezier(0.12, 0.65, 0.18, 1)`;
-
-        track.style.transform = `translateY(-${distance}px)`;
-      });
+      if (img.complete) {
+        if (img.naturalWidth > 0) {
+          finish({ file, img });
+        } else {
+          finish(null);
+        }
+      }
     });
+  }
 
-    let finished = false;
+  async function initialiseLogos() {
+    logoList.innerHTML = "";
+    logoList.classList.add("logo-reel-grid");
 
-    function finishSpin() {
-      if (finished) return;
-      finished = true;
+    // Load five different logos before showing the columns.
+    const current = [];
+    const initialImages = [];
+
+    for (const file of shuffle(logoFiles)) {
+      if (current.length === COLUMNS) break;
+
+      const result = await loadLogo(file);
+
+      if (result && !current.includes(file)) {
+        current.push(file);
+        initialImages.push(result.img);
+      }
+    }
+
+    if (current.length !== COLUMNS) {
+      console.error(
+        "Could not load five logos. Check the logo filenames and paths."
+      );
+      return;
+    }
+
+    const reels = [];
+
+    // Create the five permanent columns.
+    for (let i = 0; i < COLUMNS; i++) {
+      const reel = document.createElement("div");
+      reel.className = "logo-reel";
+
+      const track = document.createElement("div");
+      track.className = "logo-reel-track";
+
+      track.appendChild(initialImages[i]);
+      reel.appendChild(track);
+      logoList.appendChild(reel);
+
+      reels.push(track);
+    }
+
+    async function spinColumn(index) {
+      const track = reels[index];
+      const currentLogo = current[index];
+
+      // Keep the other four displayed logos unique.
+      const occupied = new Set(
+        current.filter((file, i) => i !== index)
+      );
+
+      const winnerPool = shuffle(
+        logoFiles.filter(file =>
+          !occupied.has(file) && file !== currentLogo
+        )
+      );
+
+      if (winnerPool.length === 0) {
+        setTimeout(() => spinColumn(index), 1500);
+        return;
+      }
+
+      const winner = winnerPool[0];
+
+      const fillerPool = shuffle(
+        logoFiles.filter(file =>
+          !occupied.has(file) &&
+          file !== currentLogo &&
+          file !== winner
+        )
+      );
+
+      // Prepare the complete scrolling sequence before moving.
+      const sequence = [
+        currentLogo,
+        ...fillerPool.slice(0, 10),
+        winner
+      ];
+
+      const loaded = await Promise.all(
+        sequence.map(loadLogo)
+      );
+
+      // If any image fails, leave the current logo visible.
+      if (
+        loaded.some(item => !item) ||
+        loaded[0]?.file !== currentLogo ||
+        loaded[loaded.length - 1]?.file !== winner
+      ) {
+        setTimeout(() => spinColumn(index), 1800);
+        return;
+      }
 
       track.style.transition = "none";
       track.style.transform = "translateY(0)";
-      track.replaceChildren(loaded[loaded.length - 1].img);
+      track.replaceChildren(...loaded.map(item => item.img));
 
-      current[index] = winner;
+      // Force the browser to register the starting position.
+      track.getBoundingClientRect();
 
-      // Wait a different amount of time for each column.
+      const duration = randomBetween(
+        MIN_SPIN_MS,
+        MAX_SPIN_MS
+      );
+
+      const distance = LOGO_HEIGHT * (loaded.length - 1);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          track.style.transition =
+            `transform ${duration}ms cubic-bezier(0.12, 0.65, 0.18, 1)`;
+
+          track.style.transform =
+            `translateY(-${distance}px)`;
+        });
+      });
+
+      let finished = false;
+
+      function finishSpin() {
+        if (finished) return;
+        finished = true;
+
+        track.style.transition = "none";
+        track.style.transform = "translateY(0)";
+
+        // Replace the moving sequence with the winning logo.
+        track.replaceChildren(
+          loaded[loaded.length - 1].img
+        );
+
+        current[index] = winner;
+
+        // Each column gets a different pause.
+        setTimeout(
+          () => spinColumn(index),
+          randomBetween(1400, 2600)
+        );
+      }
+
+      function onEnd(event) {
+        if (event.propertyName !== "transform") return;
+
+        track.removeEventListener(
+          "transitionend",
+          onEnd
+        );
+
+        finishSpin();
+      }
+
+      track.addEventListener("transitionend", onEnd);
+
+      // Fallback in case transitionend does not fire.
+      setTimeout(finishSpin, duration + 350);
+    }
+
+    // Start columns at different times.
+    for (let i = 0; i < COLUMNS; i++) {
       setTimeout(
-        () => spinColumn(index),
-        randomBetween(1400, 2600)
+        () => spinColumn(i),
+        randomBetween(500, 3500)
       );
     }
-
-    function onEnd(event) {
-      if (event.propertyName !== "transform") return;
-
-      track.removeEventListener("transitionend", onEnd);
-      finishSpin();
-    }
-
-    track.addEventListener("transitionend", onEnd);
-
-    // Safety fallback.
-    setTimeout(finishSpin, duration + 300);
   }
 
-  // Start each column at a different time.
-  for (let i = 0; i < columns; i++) {
-    setTimeout(
-      () => spinColumn(i),
-      randomBetween(500, 3500)
-    );
-  }
-}
-
-initialiseLogos();
-})();  
+  initialiseLogos();
+})();
 </script>
-    </div>
+
+<section id="expertise" class="section">
+  <div class="label">03 / EXPERTISE</div>
+  <h2>What I bring to the table.</h2>
+
+  <div class="grid">
+    <article>
+      <small>01</small>
+      <h3>Business Development</h3>
+      <p>Building qualified pipelines, developing new business opportunities and turning meaningful conversations into long-term commercial relationships.</p>
+    </article>
+
+    <article>
+      <small>02</small>
+      <h3>SaaS Sales</h3>
+      <p>Positioning SaaS solutions around customer needs, business outcomes and long-term commercial value.</p>
+    </article>
+
+    <article>
+      <small>03</small>
+      <h3>Strategic Partnerships</h3>
+      <p>Building strategic partnerships and commercial ecosystems that create mutual value and sustainable growth.</p>
+    </article>
+
+    <article>
+      <small>04</small>
+      <h3>Enterprise Sales</h3>
+      <p>Engaging decision-makers, understanding business requirements and guiding complex opportunities from conversation to closure.</p>
+    </article>
+
+    <article>
+      <small>05</small>
+      <h3>Go-To-Market</h3>
+      <p>Supporting go-to-market strategy through market positioning, messaging, outreach and practical sales execution.</p>
+    </article>
+
+    <article>
+      <small>06</small>
+      <h3>Sales Operations</h3>
+      <p>Building practical sales processes, CRM discipline, enablement systems and workflows that improve execution.</p>
+    </article>
   </div>
 </section>
-<section id="expertise" class="section"><div class="label">03 / EXPERTISE</div><h2>What I bring to the table.</h2>
-<div class="grid">
-<article><small>01</small><h3>Business Development</h3><p>Building qualified pipelines, developing new business opportunities and turning meaningful conversations into long-term commercial relationships.</p></article>
-<article><small>02</small><h3>SaaS Sales</h3><p>Positioning SaaS solutions around customer needs, business outcomes and long-term commercial value.</p></article>
-<article><small>03</small><h3>Strategic Partnerships</h3><p>Building strategic partnerships and commercial ecosystems that create mutual value and sustainable growth.</p></article>
-<article><small>04</small><h3>Enterprise Sales</h3><p>Engaging decision-makers, understanding business requirements and guiding complex opportunities from conversation to closure.</p></article>
-<article><small>05</small><h3>Go-To-Market</h3><p>Supporting go-to-market strategy through market positioning, messaging, outreach and practical sales execution.</p></article>
-<article><small>06</small><h3>Sales Operations</h3><p>Building practical sales processes, CRM discipline, enablement systems and workflows that improve execution.</p></article>
-</div></section>
 
-<section id="experience" class="section darkSection"><div class="label">03 / EXPERIENCE</div><h2>13+ years of <em>sales, SaaS and business growth.</em></h2>
-<div class="timeline">
+<section id="experience" class="section darkSection">
+  <div class="label">03 / EXPERIENCE</div>
+  <h2>13+ years of <em>sales, SaaS and business growth.</em></h2>
 
-<div><b>SEP 2026 — PRESENT</b><section><h3>Infologia Technologies</h3><strong>Global Sales Leader</strong><p>Leading global sales and business development for logistics technology solutions, driving international sales strategy, revenue pipeline, enterprise opportunities and market expansion across CargoWise, integrations, automation and digital transformation.</p><p>Focus: Global Revenue Growth · Enterprise Sales · Logistics Technology · CargoWise · Strategic Partnerships</p></section></div>
+  <div class="timeline">
 
-<div><b>FEB 2025 — SEP 2026</b><section><h3>Workfast.ai</h3><strong>VP of Sales &amp; Business Development</strong><p>Led global sales, revenue growth and business development for an AI-driven workflow platform, driving enterprise acquisition, go-to-market strategy, strategic partnerships and expansion across international markets.</p><p>Focus: Global Sales · Enterprise SaaS · GTM Strategy · Revenue Growth · Strategic Partnerships</p></section></div>
+    <div>
+      <b>SEP 2026 — PRESENT</b>
+      <section>
+        <h3>Infologia Technologies</h3>
+        <strong>Global Sales Leader</strong>
+        <p>Leading global sales and business development for logistics technology solutions, driving international sales strategy, revenue pipeline, enterprise opportunities and market expansion across CargoWise, integrations, automation and digital transformation.</p>
+        <p>Focus: Global Revenue Growth · Enterprise Sales · Logistics Technology · CargoWise · Strategic Partnerships</p>
+      </section>
+    </div>
 
-<div><b>OCT 2024 — MAR 2025</b><section><h3>Tandem Crystals Pvt. Ltd.</h3><strong>Associate VP of Sales &amp; Business Development</strong><p>Led commercial strategy and revenue growth for ImageCogni, an enterprise media processing and optimization platform. Focused on enterprise acquisition, market expansion, go-to-market execution and strategic business relationships.</p><p>Focus: SaaS · Enterprise Sales · GTM Strategy · Revenue Growth · Strategic Partnerships</p></section></div>
+    <div>
+      <b>FEB 2025 — SEP 2026</b>
+      <section>
+        <h3>Workfast.ai</h3>
+        <strong>VP of Sales &amp; Business Development</strong>
+        <p>Led global sales, revenue growth and business development for an AI-driven workflow platform, driving enterprise acquisition, go-to-market strategy, strategic partnerships and expansion across international markets.</p>
+        <p>Focus: Global Sales · Enterprise SaaS · GTM Strategy · Revenue Growth · Strategic Partnerships</p>
+      </section>
+    </div>
 
-<div><b>MAR 2024 — OCT 2024</b><section><h3>SquareShift</h3><strong>Technology Sales &amp; Business Development</strong><p>Drove technology sales and business development across North America, helping enterprises explore solutions spanning cloud adoption, data engineering, digital transformation, AI/ML, DevOps and cybersecurity.</p><p>Focus: Technology Sales · Cloud · Digital Transformation · Enterprise Business Development</p></section></div>
+    <div>
+      <b>OCT 2024 — MAR 2025</b>
+      <section>
+        <h3>Tandem Crystals Pvt. Ltd.</h3>
+        <strong>Associate VP of Sales &amp; Business Development</strong>
+        <p>Led commercial strategy and revenue growth for ImageCogni, an enterprise media processing and optimization platform. Focused on enterprise acquisition, market expansion, go-to-market execution and strategic business relationships.</p>
+        <p>Focus: SaaS · Enterprise Sales · GTM Strategy · Revenue Growth · Strategic Partnerships</p>
+      </section>
+    </div>
 
-<div><b>APR 2022 — FEB 2024</b><section><h3>SaaS Reseller</h3><strong>Enterprise SaaS Sales — US &amp; Canada</strong><p>Focused on enterprise SaaS sales across the US and Canada, helping organizations identify and adopt software solutions aligned with their business requirements. Managed the sales cycle from prospecting and discovery through negotiation, closing and relationship development.</p><p>Focus: Enterprise SaaS · US &amp; Canada · Business Development · Account Management</p></section></div>
+    <div>
+      <b>MAR 2024 — OCT 2024</b>
+      <section>
+        <h3>SquareShift</h3>
+        <strong>Technology Sales &amp; Business Development</strong>
+        <p>Drove technology sales and business development across North America, helping enterprises explore solutions spanning cloud adoption, data engineering, digital transformation, AI/ML, DevOps and cybersecurity.</p>
+        <p>Focus: Technology Sales · Cloud · Digital Transformation · Enterprise Business Development</p>
+      </section>
+    </div>
 
-<div><b>JUL 2021 — MAR 2022</b><section><h3>Zoko</h3><strong>VP of Sales &amp; Business Development</strong><p>Led sales and business development initiatives with responsibility for revenue growth, pipeline development, strategic opportunities and sales process optimization. Worked across business development and commercial execution to support scalable growth.</p><p>Focus: Sales Leadership · Business Development · Revenue Growth · Sales Operations</p></section></div>
+    <div>
+      <b>APR 2022 — FEB 2024</b>
+      <section>
+        <h3>SaaS Reseller</h3>
+        <strong>Enterprise SaaS Sales — US &amp; Canada</strong>
+        <p>Focused on enterprise SaaS sales across the US and Canada, helping organizations identify and adopt software solutions aligned with their business requirements. Managed the sales cycle from prospecting and discovery through negotiation, closing and relationship development.</p>
+        <p>Focus: Enterprise SaaS · US &amp; Canada · Business Development · Account Management</p>
+      </section>
+    </div>
 
-<div><b>JAN 2020 — JUL 2021</b><section><h3>SaaS Reseller</h3><strong>SMB SaaS Sales — US &amp; Canada</strong><p>Worked directly with startup founders and SMBs across the US and Canada to identify business challenges and recommend SaaS solutions across sales, marketing and business operations. Developed B2B go-to-market strategies and practical sales processes for growing technology businesses.</p><p>Focus: SMB SaaS · B2B Sales · Go-To-Market · Business Strategy</p></section></div>
+    <div>
+      <b>JUL 2021 — MAR 2022</b>
+      <section>
+        <h3>Zoko</h3>
+        <strong>VP of Sales &amp; Business Development</strong>
+        <p>Led sales and business development initiatives with responsibility for revenue growth, pipeline development, strategic opportunities and sales process optimization. Worked across business development and commercial execution to support scalable growth.</p>
+        <p>Focus: Sales Leadership · Business Development · Revenue Growth · Sales Operations</p>
+      </section>
+    </div>
 
-<div><b>JUL 2015 — JAN 2020</b><section><h3>Zoho</h3><strong>Sales Executive → Senior Sales Executive</strong><p>Progressed through two sales roles while driving sales initiatives for Zoho Desk across the US, Canada and LATAM. Focused on pipeline generation, revenue growth, key account management, customer relationships and consultative SaaS sales.</p><p>Focus: SaaS Sales · International Sales · Zoho Desk · Account Management</p></section></div>
+    <div>
+      <b>JAN 2020 — JUL 2021</b>
+      <section>
+        <h3>SaaS Reseller</h3>
+        <strong>SMB SaaS Sales — US &amp; Canada</strong>
+        <p>Worked directly with startup founders and SMBs across the US and Canada to identify business challenges and recommend SaaS solutions across sales, marketing and business operations. Developed B2B go-to-market strategies and practical sales processes for growing technology businesses.</p>
+        <p>Focus: SMB SaaS · B2B Sales · Go-To-Market · Business Strategy</p>
+      </section>
+    </div>
 
-<div><b>NOV 2013 — MAY 2015</b><section><h3>Groupon</h3><strong>Senior Consultant — Customer Experience &amp; Support</strong><p>Managed customer issues through live chat and email support, handling complex escalations while maintaining a strong focus on customer experience and service quality. Consistently delivered against performance goals while supporting team effectiveness.</p><p>Focus: Customer Experience · Escalation Management · Customer Support · Performance</p></section></div>
+    <div>
+      <b>JUL 2015 — JAN 2020</b>
+      <section>
+        <h3>Zoho</h3>
+        <strong>Sales Executive → Senior Sales Executive</strong>
+        <p>Progressed through two sales roles while driving sales initiatives for Zoho Desk across the US, Canada and LATAM. Focused on pipeline generation, revenue growth, key account management, customer relationships and consultative SaaS sales.</p>
+        <p>Focus: SaaS Sales · International Sales · Zoho Desk · Account Management</p>
+      </section>
+    </div>
 
-<div><b>MAR 2012 — APR 2012</b><section><h3>HCL Technologies</h3><strong>Internship Trainee — Human Resources</strong><p>Supported HR operations including employee database management, recruitment coordination, interview scheduling, job postings and employee support. Gained early professional experience in structured corporate operations and human resources.</p><p>Focus: Human Resources · Recruitment Support · Operations</p></section></div>
+    <div>
+      <b>NOV 2013 — MAY 2015</b>
+      <section>
+        <h3>Groupon</h3>
+        <strong>Senior Consultant — Customer Experience &amp; Support</strong>
+        <p>Managed customer issues through live chat and email support, handling complex escalations while maintaining a strong focus on customer experience and service quality. Consistently delivered against performance goals while supporting team effectiveness.</p>
+        <p>Focus: Customer Experience · Escalation Management · Customer Support · Performance</p>
+      </section>
+    </div>
 
-</div></section>
+    <div>
+      <b>MAR 2012 — APR 2012</b>
+      <section>
+        <h3>HCL Technologies</h3>
+        <strong>Internship Trainee — Human Resources</strong>
+        <p>Supported HR operations including employee database management, recruitment coordination, interview scheduling, job postings and employee support. Gained early professional experience in structured corporate operations and human resources.</p>
+        <p>Focus: Human Resources · Recruitment Support · Operations</p>
+      </section>
+    </div>
 
-<section class="split"><div><div class="label">04 / BEYOND SALES</div><h2>I don't just sell solutions. I build <em>relationships, partnerships and growth.</em></h2><p>Great sales is about more than moving a product. It's about understanding the business, finding the right solution, connecting the right people and creating value that lasts beyond the deal.</p></div>
-<div class="beige"><div class="label">MY APPROACH</div><ol><li>People first</li><li>Understand the business problem</li><li>Create meaningful value</li><li>Build long-term relationships</li><li>Execute with consistency</li></ol></div></section>
+  </div>
+</section>
 
-<section id="contact" class="section contact"><div class="label">05 / CONTACT</div><h2>Let's build something <em>meaningful.</em></h2><p>Open to conversations around sales leadership, SaaS, business development, partnerships and growth opportunities.</p>
-<div class="actions"><a class="btn dark" href="mailto:iamgeojoe@gmail.com">Email Me</a><a class="btn" href="https://www.linkedin.com/in/george-s-5450a4113/?isSelfProfile=true" target="_blank">LinkedIn</a></div>
+<section class="split">
+  <div>
+    <div class="label">04 / BEYOND SALES</div>
+    <h2>I don't just sell solutions. I build <em>relationships, partnerships and growth.</em></h2>
+    <p>Great sales is about more than moving a product. It's about understanding the business, finding the right solution, connecting the right people and creating value that lasts beyond the deal.</p>
+  </div>
+
+  <div class="beige">
+    <div class="label">MY APPROACH</div>
+    <ol>
+      <li>People first</li>
+      <li>Understand the business problem</li>
+      <li>Create meaningful value</li>
+      <li>Build long-term relationships</li>
+      <li>Execute with consistency</li>
+    </ol>
+  </div>
+</section>
+
+<section id="contact" class="section contact">
+  <div class="label">05 / CONTACT</div>
+  <h2>Let's build something <em>meaningful.</em></h2>
+  <p>Open to conversations around sales leadership, SaaS, business development, partnerships and growth opportunities.</p>
+
+  <div class="actions">
+    <a class="btn dark" href="mailto:iamgeojoe@gmail.com">Email Me</a>
+    <a class="btn" href="https://www.linkedin.com/in/george-s-5450a4113/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+  </div>
+</section>
+
 </main>
-<footer>© <span id="year"></span> George <span>Sales • SaaS • Partnerships</span></footer>
+
+<footer>
+  © <span id="year"></span> George
+  <span>Sales • SaaS • Partnerships</span>
+</footer>
+
 <script src="script.js"></script>
-</body></html>
+
+</body>
+</html>
