@@ -9,7 +9,6 @@
 </head>
 
 <body>
-
 <header>
   <a class="brand" href="#top">GEORGE</a>
   <nav>
@@ -59,7 +58,6 @@
   <div class="logo-track">
     <div class="logo-list"></div>
   </div>
-</section>
 
 <script>
 (function () {
@@ -165,13 +163,15 @@
   ];
 
   const logoList = document.querySelector(".logo-list");
-
   if (!logoList || logoFiles.length === 0) return;
 
   const COLUMNS = 5;
   const LOGO_HEIGHT = 100;
-  const MIN_SPIN_MS = 4000;
-  const MAX_SPIN_MS = 5000;
+  const MIN_SPIN_MS = 4500;
+  const MAX_SPIN_MS = 5500;
+
+  const reservedWinners = new Set();
+  const columnBusy = Array(COLUMNS).fill(false);
 
   const randomBetween = (min, max) =>
     Math.floor(Math.random() * (max - min + 1)) + min;
@@ -187,25 +187,33 @@
     return result;
   }
 
+  // Load an image completely before using it in an animation.
   function loadLogo(file) {
     return new Promise(resolve => {
       const img = new Image();
+      let settled = false;
+      let timeout;
+
+      function finish(value) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        resolve(value);
+      }
 
       img.alt = file.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ");
       img.decoding = "async";
 
-      let resolved = false;
+      img.onload = () => {
+        finish(img.naturalWidth > 0 ? { file, img } : null);
+      };
 
-      function finish(result) {
-        if (resolved) return;
-        resolved = true;
-        resolve(result);
-      }
-
-      img.onload = () => finish({ file, img });
       img.onerror = () => finish(null);
+
+      timeout = setTimeout(() => finish(null), 10000);
       img.src = "assets/portfolio-logos/" + file;
 
+      // Handle images already stored in the browser cache.
       if (img.complete) {
         if (img.naturalWidth > 0) {
           finish({ file, img });
@@ -220,7 +228,7 @@
     logoList.innerHTML = "";
     logoList.classList.add("logo-reel-grid");
 
-    // Load five different logos before showing the columns.
+    // Find five valid, unique logos before displaying the columns.
     const current = [];
     const initialImages = [];
 
@@ -237,14 +245,14 @@
 
     if (current.length !== COLUMNS) {
       console.error(
-        "Could not load five logos. Check the logo filenames and paths."
+        "Could not load five portfolio logos. Check the filenames in logoFiles."
       );
       return;
     }
 
     const reels = [];
 
-    // Create the five permanent columns.
+    // Create exactly five vertical columns.
     for (let i = 0; i < COLUMNS; i++) {
       const reel = document.createElement("div");
       reel.className = "logo-reel";
@@ -260,97 +268,94 @@
     }
 
     async function spinColumn(index) {
+      if (columnBusy[index]) return;
+      columnBusy[index] = true;
+
       const track = reels[index];
       const currentLogo = current[index];
 
-      // Keep the other four displayed logos unique.
+      // Preserve the other four visible logos.
       const occupied = new Set(
         current.filter((file, i) => i !== index)
       );
 
+      // Never choose a logo currently visible in another column.
       const winnerPool = shuffle(
         logoFiles.filter(file =>
-          !occupied.has(file) && file !== currentLogo
+          !occupied.has(file) &&
+          file !== currentLogo &&
+          !reservedWinners.has(file)
         )
       );
 
       if (winnerPool.length === 0) {
-        setTimeout(() => spinColumn(index), 1500);
+        columnBusy[index] = false;
+        setTimeout(() => spinColumn(index), 1200);
         return;
       }
 
       const winner = winnerPool[0];
+      reservedWinners.add(winner);
 
       const fillerPool = shuffle(
         logoFiles.filter(file =>
           !occupied.has(file) &&
           file !== currentLogo &&
-          file !== winner
+          file !== winner &&
+          !reservedWinners.has(file)
         )
       );
 
-      // Prepare the complete scrolling sequence before moving.
+      // Prepare the complete vertical sequence before moving the column.
       const sequence = [
         currentLogo,
-        ...fillerPool.slice(0, 10),
+        ...fillerPool.slice(0, 11),
         winner
       ];
 
-      const loaded = await Promise.all(
-        sequence.map(loadLogo)
-      );
+      const loaded = await Promise.all(sequence.map(loadLogo));
 
-      // If any image fails, leave the current logo visible.
+      // If an image fails, keep the existing logo visible and try again.
       if (
         loaded.some(item => !item) ||
         loaded[0]?.file !== currentLogo ||
         loaded[loaded.length - 1]?.file !== winner
       ) {
-        setTimeout(() => spinColumn(index), 1800);
+        reservedWinners.delete(winner);
+        columnBusy[index] = false;
+        setTimeout(() => spinColumn(index), 1500);
         return;
       }
 
+      // Every image is ready. Now install the sequence.
       track.style.transition = "none";
       track.style.transform = "translateY(0)";
       track.replaceChildren(...loaded.map(item => item.img));
-
-      // Force the browser to register the starting position.
       track.getBoundingClientRect();
 
-      const duration = randomBetween(
-        MIN_SPIN_MS,
-        MAX_SPIN_MS
-      );
-
+      const duration = randomBetween(MIN_SPIN_MS, MAX_SPIN_MS);
       const distance = LOGO_HEIGHT * (loaded.length - 1);
 
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          track.style.transition =
-            `transform ${duration}ms cubic-bezier(0.12, 0.65, 0.18, 1)`;
-
-          track.style.transform =
-            `translateY(-${distance}px)`;
-        });
-      });
-
       let finished = false;
+      let fallbackTimer;
 
       function finishSpin() {
         if (finished) return;
         finished = true;
 
+        clearTimeout(fallbackTimer);
+        track.removeEventListener("transitionend", onEnd);
+
+        // Stop on the winning logo without leaving a blank column.
         track.style.transition = "none";
         track.style.transform = "translateY(0)";
-
-        // Replace the moving sequence with the winning logo.
-        track.replaceChildren(
-          loaded[loaded.length - 1].img
-        );
+        track.replaceChildren(loaded[loaded.length - 1].img);
 
         current[index] = winner;
+        reservedWinners.delete(winner);
+        columnBusy[index] = false;
 
-        // Each column gets a different pause.
+        // Each column has its own pause before spinning again.
         setTimeout(
           () => spinColumn(index),
           randomBetween(1400, 2600)
@@ -358,23 +363,28 @@
       }
 
       function onEnd(event) {
-        if (event.propertyName !== "transform") return;
-
-        track.removeEventListener(
-          "transitionend",
-          onEnd
-        );
-
-        finishSpin();
+        if (event.propertyName === "transform") {
+          finishSpin();
+        }
       }
 
       track.addEventListener("transitionend", onEnd);
 
-      // Fallback in case transitionend does not fire.
-      setTimeout(finishSpin, duration + 350);
+      // Backup in case the browser does not fire transitionend.
+      fallbackTimer = setTimeout(finishSpin, duration + 500);
+
+      // Two animation frames ensure the browser registers the starting position.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          track.style.transition =
+            `transform ${duration}ms cubic-bezier(0.12, 0.65, 0.18, 1)`;
+
+          track.style.transform = `translateY(-${distance}px)`;
+        });
+      });
     }
 
-    // Start columns at different times.
+    // Stagger the five columns so they do not all spin together.
     for (let i = 0; i < COLUMNS; i++) {
       setTimeout(
         () => spinColumn(i),
@@ -386,6 +396,8 @@
   initialiseLogos();
 })();
 </script>
+
+</section>
 
 <section id="expertise" class="section">
   <div class="label">03 / EXPERTISE</div>
@@ -565,7 +577,7 @@
 
   <div class="actions">
     <a class="btn dark" href="mailto:iamgeojoe@gmail.com">Email Me</a>
-    <a class="btn" href="https://www.linkedin.com/in/george-s-5450a4113/?isSelfProfile=true" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    <a class="btn" href="https://www.linkedin.com/in/george-s-5450a4113/?isSelfProfile=true" target="_blank">LinkedIn</a>
   </div>
 </section>
 
@@ -577,6 +589,5 @@
 </footer>
 
 <script src="script.js"></script>
-
 </body>
 </html>
