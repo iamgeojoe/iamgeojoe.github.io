@@ -140,94 +140,174 @@
 
   
   const logoList = document.querySelector(".logo-list");
-  if (!logoList || logoFiles.length === 0) return;
+if (!logoList || logoFiles.length === 0) return;
 
-  const columns = 5;
-  const logoHeight = 100;
-  const spinDuration = 1800;
-  const pauseDuration = 2200;
+const columns = 5;
+const randomBetween = (min, max) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
 
-  function randomLogo() {
-    return logoFiles[Math.floor(Math.random() * logoFiles.length)];
-  }
+function shuffle(items) {
+  return [...items].sort(() => Math.random() - 0.5);
+}
 
-  function createLogo(file) {
+function createLogo(file) {
+  const img = document.createElement("img");
+  img.src = "assets/portfolio-logos/" + file;
+  img.alt = file.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ");
+  img.loading = "eager";
+  return img;
+}
+
+function loadLogo(file) {
+  return new Promise(resolve => {
     const img = document.createElement("img");
-    img.src = "assets/portfolio-logos/" + file;
-    img.alt = file.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+
+    img.alt = file.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ");
     img.loading = "eager";
-    return img;
-  }
 
-  logoList.innerHTML = "";
-  logoList.classList.add("logo-reel-grid");
+    img.onload = () => resolve({ file, img });
+    img.onerror = () => resolve(null);
 
-  for (let i = 0; i < columns; i++) {
+    img.src = "assets/portfolio-logos/" + file;
+  });
+}
+logoList.innerHTML = "";
+logoList.classList.add("logo-reel-grid");
+
+const availableLogos = shuffle(logoFiles);
+const current = availableLogos.slice(0, columns);
+const reels = [];
+
+for (let i = 0; i < columns; i++) {
   const reel = document.createElement("div");
   reel.className = "logo-reel";
 
   const track = document.createElement("div");
   track.className = "logo-reel-track";
 
+  track.appendChild(createLogo(current[i]));
   reel.appendChild(track);
   logoList.appendChild(reel);
 
-  function spin() {
-    const sequence = Array.from(
-      { length: 18 },
-      () => randomLogo()
-    );
+  reels.push(track);
+}
 
-    const winningLogo = randomLogo();
-    sequence.push(winningLogo);
+async function spinColumn(index) {
+  const track = reels[index];
+  const currentLogo = current[index];
 
-    track.innerHTML = "";
+  // Keep the other four currently displayed logos unique.
+  const occupied = new Set(
+    current.filter((file, i) => i !== index)
+  );
 
-    sequence.forEach(file => {
-      track.appendChild(createLogo(file));
-    });
+  const winnerPool = logoFiles.filter(
+    file => !occupied.has(file) && file !== currentLogo
+  );
 
-    track.style.transition = "none";
-    track.style.transform = "translateY(0)";
+  if (winnerPool.length === 0) {
+    setTimeout(() => spinColumn(index), 2500);
+    return;
+  }
 
-    const firstImage = track.querySelector("img");
+  const winner =
+    winnerPool[Math.floor(Math.random() * winnerPool.length)];
 
-    const startSpin = () => {
-  const step = firstImage.getBoundingClientRect().height;
-  if (!step) return;
+  // Prepare a sequence without repeating the current or winning logo.
+  const fillerPool = shuffle(
+    logoFiles.filter(
+      file =>
+        !occupied.has(file) &&
+        file !== currentLogo &&
+        file !== winner
+    )
+  );
 
-  const distance = step * (sequence.length - 1);
-  const duration = spinDuration + i * 350;
+  const sequence = [
+    currentLogo,
+    ...fillerPool.slice(0, 12),
+    winner
+  ];
+
+  // Load the entire sequence before starting the movement.
+  const loaded = (await Promise.all(sequence.map(loadLogo)))
+    .filter(Boolean);
+
+  if (
+    loaded.length < 2 ||
+    loaded[0].file !== currentLogo ||
+    loaded[loaded.length - 1].file !== winner
+  ) {
+    setTimeout(() => spinColumn(index), 1800);
+    return;
+  }
+
+  track.style.transition = "none";
+  track.style.transform = "translateY(0)";
+  track.replaceChildren(...loaded.map(item => item.img));
+
+  // Measure the actual logo height before calculating the movement.
+  const step = loaded[0].img.getBoundingClientRect().height;
+
+  if (!step) {
+    track.replaceChildren(createLogo(currentLogo));
+    setTimeout(() => spinColumn(index), 2000);
+    return;
+  }
+
+  const distance = step * (loaded.length - 1);
+  const duration = randomBetween(2600, 3400);
+
+  // Allow the browser to register the starting position.
+  track.getBoundingClientRect();
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       track.style.transition =
-    `transform ${duration}ms cubic-bezier(0.12, 0.75, 0.18, 1)`;
+        `transform ${duration}ms cubic-bezier(0.10, 0.72, 0.16, 1)`;
 
       track.style.transform = `translateY(-${distance}px)`;
-
-      setTimeout(() => {
-        track.style.transition = "none";
-        track.style.transform = "translateY(0)";
-        track.innerHTML = "";
-        track.appendChild(createLogo(winningLogo));
-
-        setTimeout(spin, pauseDuration);
-      }, duration + 50);
     });
   });
-};
 
-        if (firstImage.complete && firstImage.naturalHeight > 0) {
-          startSpin();
-        } else {
-          firstImage.onload = startSpin;
-        }
-      }
+  let finished = false;
 
-      spin();
-    }
-  })();
+  function finishSpin() {
+    if (finished) return;
+    finished = true;
+
+    track.style.transition = "none";
+    track.style.transform = "translateY(0)";
+    track.replaceChildren(createLogo(winner));
+
+    current[index] = winner;
+
+    // Each column gets its own random pause before spinning again.
+    setTimeout(
+      () => spinColumn(index),
+      randomBetween(900, 2600)
+    );
+  }
+
+  track.addEventListener("transitionend", function onEnd(event) {
+    if (event.propertyName !== "transform") return;
+
+    track.removeEventListener("transitionend", onEnd);
+    finishSpin();
+  });
+
+  // Fallback in case the browser doesn't fire transitionend.
+  setTimeout(finishSpin, duration + 250);
+}
+
+// Start the columns at different times.
+for (let i = 0; i < columns; i++) {
+  setTimeout(
+    () => spinColumn(i),
+    randomBetween(500, 3500)
+  );
+}
+})();  
 </script>
     </div>
   </div>
