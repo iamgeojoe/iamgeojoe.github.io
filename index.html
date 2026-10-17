@@ -278,7 +278,7 @@ async function spinColumn(index) {
 
     track.style.transition = "none";
     track.style.transform = "translateY(0)";
-    track.replaceChildren(createLogo(winner));
+    track.replaceChildren(loaded[loaded.length - 1].img);
 
     current[index] = winner;
 
