@@ -196,7 +196,6 @@ async function spinColumn(index) {
   const track = reels[index];
   const currentLogo = current[index];
 
-  // Keep the other four currently displayed logos unique.
   const occupied = new Set(
     current.filter((file, i) => i !== index)
   );
@@ -205,15 +204,14 @@ async function spinColumn(index) {
     file => !occupied.has(file) && file !== currentLogo
   );
 
-  if (winnerPool.length === 0) {
-    setTimeout(() => spinColumn(index), 2500);
+  if (!winnerPool.length) {
+    setTimeout(() => spinColumn(index), 2000);
     return;
   }
 
   const winner =
     winnerPool[Math.floor(Math.random() * winnerPool.length)];
 
-  // Prepare a sequence without repeating the current or winning logo.
   const fillerPool = shuffle(
     logoFiles.filter(
       file =>
@@ -229,7 +227,6 @@ async function spinColumn(index) {
     winner
   ];
 
-  // Load the entire sequence before starting the movement.
   const loaded = (await Promise.all(sequence.map(loadLogo)))
     .filter(Boolean);
 
@@ -238,7 +235,7 @@ async function spinColumn(index) {
     loaded[0].file !== currentLogo ||
     loaded[loaded.length - 1].file !== winner
   ) {
-    setTimeout(() => spinColumn(index), 1800);
+    setTimeout(() => spinColumn(index), 1500);
     return;
   }
 
@@ -246,26 +243,16 @@ async function spinColumn(index) {
   track.style.transform = "translateY(0)";
   track.replaceChildren(...loaded.map(item => item.img));
 
-  // Measure the actual logo height before calculating the movement.
-  const step = loaded[0].img.getBoundingClientRect().height;
-
-  if (!step) {
-    track.replaceChildren(createLogo(currentLogo));
-    setTimeout(() => spinColumn(index), 2000);
-    return;
-  }
-
-  const distance = step * (loaded.length - 1);
+  const step = 100;
   const duration = randomBetween(2600, 3400);
+  const distance = step * (loaded.length - 1);
 
-  // Allow the browser to register the starting position.
   track.getBoundingClientRect();
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       track.style.transition =
         `transform ${duration}ms cubic-bezier(0.10, 0.72, 0.16, 1)`;
-
       track.style.transform = `translateY(-${distance}px)`;
     });
   });
@@ -282,24 +269,21 @@ async function spinColumn(index) {
 
     current[index] = winner;
 
-    // Each column gets its own random pause before spinning again.
     setTimeout(
       () => spinColumn(index),
-      randomBetween(900, 2600)
+      randomBetween(1200, 2800)
     );
   }
 
-  track.addEventListener("transitionend", function onEnd(event) {
+  function onEnd(event) {
     if (event.propertyName !== "transform") return;
-
     track.removeEventListener("transitionend", onEnd);
     finishSpin();
-  });
+  }
 
-  // Fallback in case the browser doesn't fire transitionend.
-  setTimeout(finishSpin, duration + 250);
+  track.addEventListener("transitionend", onEnd);
+  setTimeout(finishSpin, duration + 300);
 }
-
 // Start the columns at different times.
 for (let i = 0; i < columns; i++) {
   setTimeout(
