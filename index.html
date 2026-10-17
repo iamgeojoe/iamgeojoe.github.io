@@ -140,155 +140,165 @@
 
   
   const logoList = document.querySelector(".logo-list");
-if (!logoList || logoFiles.length === 0) return;
+if (!logoList || !logoFiles.length) return;
 
 const columns = 5;
+
 const randomBetween = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
 function shuffle(items) {
-  return [...items].sort(() => Math.random() - 0.5);
-}
+  const result = [...items];
 
-function createLogo(file) {
-  const img = document.createElement("img");
-  img.src = "assets/portfolio-logos/" + file;
-  img.alt = file.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ");
-  img.loading = "eager";
-  return img;
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result;
 }
 
 function loadLogo(file) {
   return new Promise(resolve => {
-    const img = document.createElement("img");
+    const img = new Image();
 
     img.alt = file.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ");
-    img.loading = "eager";
-
     img.onload = () => resolve({ file, img });
     img.onerror = () => resolve(null);
-
     img.src = "assets/portfolio-logos/" + file;
   });
 }
-logoList.innerHTML = "";
-logoList.classList.add("logo-reel-grid");
 
-const availableLogos = shuffle(logoFiles);
-const current = availableLogos.slice(0, columns);
-const reels = [];
+async function initialiseLogos() {
+  logoList.innerHTML = "";
+  logoList.classList.add("logo-reel-grid");
 
-for (let i = 0; i < columns; i++) {
-  const reel = document.createElement("div");
-  reel.className = "logo-reel";
+  const available = shuffle(logoFiles);
+  const current = available.slice(0, columns);
+  const reels = [];
 
-  const track = document.createElement("div");
-  track.className = "logo-reel-track";
+  // Load the first five logos before displaying the columns.
+  const initialLogos = await Promise.all(current.map(loadLogo));
 
-  track.appendChild(createLogo(current[i]));
-  reel.appendChild(track);
-  logoList.appendChild(reel);
-
-  reels.push(track);
-}
-
-async function spinColumn(index) {
-  const track = reels[index];
-  const currentLogo = current[index];
-
-  const occupied = new Set(
-    current.filter((file, i) => i !== index)
-  );
-
-  const winnerPool = logoFiles.filter(
-    file => !occupied.has(file) && file !== currentLogo
-  );
-
-  if (!winnerPool.length) {
-    setTimeout(() => spinColumn(index), 2000);
+  if (initialLogos.some(item => !item)) {
+    console.error("Some initial logos failed to load.");
     return;
   }
 
-  const winner =
-    winnerPool[Math.floor(Math.random() * winnerPool.length)];
+  for (let i = 0; i < columns; i++) {
+    const reel = document.createElement("div");
+    reel.className = "logo-reel";
 
-  const fillerPool = shuffle(
-    logoFiles.filter(
-      file =>
-        !occupied.has(file) &&
-        file !== currentLogo &&
-        file !== winner
-    )
-  );
+    const track = document.createElement("div");
+    track.className = "logo-reel-track";
 
-  const sequence = [
-    currentLogo,
-    ...fillerPool.slice(0, 12),
-    winner
-  ];
+    track.appendChild(initialLogos[i].img);
+    reel.appendChild(track);
+    logoList.appendChild(reel);
 
-  const loaded = await Promise.all(sequence.map(loadLogo));
+    reels.push(track);
+  }
 
-if (
-  loaded.some(item => !item) ||
-  loaded[0].file !== currentLogo ||
-  loaded[loaded.length - 1].file !== winner
-) {
-  setTimeout(() => spinColumn(index), 1800);
-  return;
-}
-  track.style.transition = "none";
-  track.style.transform = "translateY(0)";
-  track.replaceChildren(...loaded.map(item => item.img));
+  async function spinColumn(index) {
+    const track = reels[index];
+    const currentLogo = current[index];
 
-  const step = 100;
-  const duration = randomBetween(2600, 3400);
-  const distance = step * (loaded.length - 1);
+    // Keep the five stationary logos unique.
+    const occupied = new Set(
+      current.filter((file, i) => i !== index)
+    );
 
-  track.getBoundingClientRect();
+    const pool = shuffle(
+      logoFiles.filter(
+        file => !occupied.has(file) && file !== currentLogo
+      )
+    );
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      track.style.transition =
-        `transform ${duration}ms cubic-bezier(0.10, 0.72, 0.16, 1)`;
-      track.style.transform = `translateY(-${distance}px)`;
-    });
-  });
+    if (pool.length < 2) {
+      setTimeout(() => spinColumn(index), 2000);
+      return;
+    }
 
-  let finished = false;
+    const winner = pool[pool.length - 1];
 
-  function finishSpin() {
-    if (finished) return;
-    finished = true;
+    const sequence = [
+      currentLogo,
+      ...pool.slice(0, Math.min(10, pool.length - 1)),
+      winner
+    ];
+
+    const loaded = await Promise.all(sequence.map(loadLogo));
+
+    if (
+      loaded.some(item => !item) ||
+      loaded[0].file !== currentLogo ||
+      loaded[loaded.length - 1].file !== winner
+    ) {
+      setTimeout(() => spinColumn(index), 1800);
+      return;
+    }
 
     track.style.transition = "none";
     track.style.transform = "translateY(0)";
-    track.replaceChildren(loaded[loaded.length - 1].img);
+    track.replaceChildren(...loaded.map(item => item.img));
 
-    current[index] = winner;
+    const step = 100;
+    const distance = step * (loaded.length - 1);
+    const duration = randomBetween(3000, 3800);
 
+    track.getBoundingClientRect();
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        track.style.transition =
+          `transform ${duration}ms cubic-bezier(0.12, 0.65, 0.18, 1)`;
+
+        track.style.transform = `translateY(-${distance}px)`;
+      });
+    });
+
+    let finished = false;
+
+    function finishSpin() {
+      if (finished) return;
+      finished = true;
+
+      track.style.transition = "none";
+      track.style.transform = "translateY(0)";
+      track.replaceChildren(loaded[loaded.length - 1].img);
+
+      current[index] = winner;
+
+      // Wait a different amount of time for each column.
+      setTimeout(
+        () => spinColumn(index),
+        randomBetween(1400, 2600)
+      );
+    }
+
+    function onEnd(event) {
+      if (event.propertyName !== "transform") return;
+
+      track.removeEventListener("transitionend", onEnd);
+      finishSpin();
+    }
+
+    track.addEventListener("transitionend", onEnd);
+
+    // Safety fallback.
+    setTimeout(finishSpin, duration + 300);
+  }
+
+  // Start each column at a different time.
+  for (let i = 0; i < columns; i++) {
     setTimeout(
-      () => spinColumn(index),
-      randomBetween(1200, 2800)
+      () => spinColumn(i),
+      randomBetween(500, 3500)
     );
   }
-
-  function onEnd(event) {
-    if (event.propertyName !== "transform") return;
-    track.removeEventListener("transitionend", onEnd);
-    finishSpin();
-  }
-
-  track.addEventListener("transitionend", onEnd);
-  setTimeout(finishSpin, duration + 300);
 }
-// Start the columns at different times.
-for (let i = 0; i < columns; i++) {
-  setTimeout(
-    () => spinColumn(i),
-    randomBetween(500, 3500)
-  );
-}
+
+initialiseLogos();
 })();  
 </script>
     </div>
