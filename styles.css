@@ -54,10 +54,12 @@
   height: 100px;
   min-width: 0;
   overflow: hidden;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   border-right: 1px dotted rgba(11, 23, 42, 0.22);
+  box-sizing: border-box;
 }
 
 .logo-reel:last-child {
@@ -69,6 +71,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 0;
+  padding: 0;
   transform: translateY(0);
   will-change: transform;
 }
@@ -77,14 +81,15 @@
   display: block;
   width: 100%;
   height: 100px;
+  min-height: 100px;
   max-width: 100% !important;
-  padding: 16px;
+  margin: 0;
+  padding: 12px;
   object-fit: contain;
-  flex-shrink: 0;
+  flex: 0 0 100px;
   box-sizing: border-box;
-  border-right: none !important;
+  border: none !important;
 }
-
 /* Slot-machine logo animation */
 .logo-reel-grid {
     display: grid;
