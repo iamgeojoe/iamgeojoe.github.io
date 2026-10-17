@@ -32,17 +32,17 @@
   }
 }
 /* SLOT-MACHINE LOGO ANIMATION */
+
 .logo-track {
   width: 100%;
   overflow: hidden;
   position: relative;
-  -webkit-mask-image: none;
-  mask-image: none;
 }
 
-.logo-list {
+.logo-list,
+.logo-reel-grid {
   display: grid !important;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   align-items: center;
   gap: 0 !important;
   width: 100% !important;
@@ -59,7 +59,6 @@
   align-items: center;
   justify-content: center;
   border-right: 1px dotted rgba(11, 23, 42, 0.22);
-  box-sizing: border-box;
 }
 
 .logo-reel:last-child {
@@ -90,80 +89,19 @@
   box-sizing: border-box;
   border: none !important;
 }
-/* Slot-machine logo animation */
-.logo-reel-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 0px;
-    width: 100%;
-    align-items: center;
+
+@media (max-width: 560px) {
+  .logo-reel {
+    height: 80px;
+  }
+
+  .logo-reel-track img {
+    height: 80px;
+    min-height: 80px;
+    flex-basis: 80px;
+    padding: 6px;
+  }
 }
-
-.logo-reel {
-    height: 100px;
-    min-width: 0;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px dotted rgba(11, 23, 42, 0.22);
-}
-
-.logo-reel:last-child {
-    border-right: none;
-}
-
-.logo-reel-track {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transform: translateY(0);
-    will-change: transform;
-}
-
-.logo-reel-track img {
-    display: block;
-    width: 100%;
-    height: 100px;
-    max-width: 100% !important;
-    padding: 16px;
-    object-fit: contain;
-    flex-shrink: 0;
-    box-sizing: border-box;
-}
-
-@media (max-width: 900px) {
-    .logo-reel-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    .logo-reel {
-        height: 90px;
-    }
-
-    .logo-reel-track img {
-        height: 90px;
-    }
-}
-
-@media (max-width: 480px) {
-    .logo-reel-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 6px;
-    }
-
-    .logo-reel {
-        height: 82px;
-    }
-
-    .logo-reel-track img {
-        height: 82px;
-        padding: 10px;
-    }
-}
-
-
 
 @media (prefers-reduced-motion: reduce) {
   .logo-reel-track,
