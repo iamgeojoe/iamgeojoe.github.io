@@ -1,15 +1,11 @@
 
 /* =========================================
    PERSONAL PORTFOLIO WEBSITE
-   Typography: Inter
+   Font: Inter
    Theme: Navy, Ivory, Denim Blue
 ========================================= */
 
 @import url("https://rsms.me/inter/inter.css");
-
-/* =========================================
-   1. GLOBAL SETTINGS
-========================================= */
 
 :root {
   --navy: #0B172A;
@@ -29,6 +25,10 @@
   --section-space: 96px;
   --radius: 14px;
 }
+
+/* =========================================
+   1. GLOBAL SETTINGS
+========================================= */
 
 * {
   box-sizing: border-box;
@@ -52,19 +52,11 @@ body {
   font-feature-settings: "cv11", "ss01";
 }
 
-body,
 button,
 input,
 textarea,
 select {
-  font-family: var(--font-main);
-}
-
-button,
-input,
-textarea,
-select {
-  font-size: inherit;
+  font: inherit;
 }
 
 img {
@@ -442,7 +434,7 @@ a.button:hover {
 
 /* =========================================
    10. COMPANIES & PARTNERSHIPS
-   RIGHT-TO-LEFT CONTINUOUS CAROUSEL
+   NAKED LOGOS - RIGHT TO LEFT
 ========================================= */
 
 .logo-section {
@@ -480,26 +472,40 @@ a.button:hover {
   line-height: 1.8;
 }
 
+/* Carousel viewport */
+
 .logo-carousel {
   position: relative;
   width: 100%;
   overflow: hidden;
+  background: transparent;
+  border: 0;
 }
+
+/* Moving track */
 
 .logo-track {
   position: relative;
   width: 100%;
   overflow: hidden;
+  background: transparent;
+  border: 0;
 }
+
+/* Continuous animation is controlled by script.js.
+   Keep the existing speed unchanged. */
 
 .logo-list {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 28px;
   width: max-content;
   transform: translateX(0);
   will-change: transform;
+  background: transparent;
 }
+
+/* Remove the white boxes around the logos */
 
 .logo-card {
   display: flex;
@@ -508,35 +514,46 @@ a.button:hover {
   justify-content: center;
   width: 150px;
   height: 100px;
-  padding: 14px;
-  overflow: hidden;
-  border: 1px solid rgba(11, 23, 42, 0.08);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.78);
-  transition:
-    background-color 180ms ease,
-    border-color 180ms ease;
+  padding: 12px;
+  overflow: visible;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: none;
 }
 
 .logo-card:hover {
-  background: var(--white);
-  border-color: rgba(49, 92, 140, 0.35);
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
+
+/* Preserve original logos and brand colours */
 
 .logo-card img {
   display: block;
   width: 100%;
-  max-width: 115px;
-  height: 48px;
+  max-width: 125px;
+  height: 54px;
   padding: 0;
   margin: 0;
   border: 0;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
   object-fit: contain;
   object-position: center;
 }
 
+/* Hide arrow buttons and pagination dots */
+
+.logo-arrow,
+.logo-prev,
+.logo-next,
 .logo-carousel-status {
-  display: none;
+  display: none !important;
 }
 
 .logo-error {
@@ -642,7 +659,7 @@ textarea {
 }
 
 /* =========================================
-   15. RESPONSIVE: TABLETS
+   15. TABLET RESPONSIVE STYLES
 ========================================= */
 
 @media (max-width: 850px) {
@@ -661,20 +678,29 @@ textarea {
     padding: 90px 0 75px;
   }
 
+  .logo-section {
+    padding: 64px 5%;
+  }
+
+  .logo-list {
+    gap: 22px;
+  }
+
   .logo-card {
     flex-basis: 130px;
     width: 130px;
     height: 92px;
-    padding: 12px;
+    padding: 8px;
   }
 
   .logo-card img {
-    height: 44px;
+    max-width: 112px;
+    height: 46px;
   }
 }
 
 /* =========================================
-   16. RESPONSIVE: MOBILE
+   16. MOBILE RESPONSIVE STYLES
 ========================================= */
 
 @media (max-width: 560px) {
@@ -726,7 +752,7 @@ textarea {
   }
 
   .logo-section {
-    padding: 55px 18px;
+    padding: 52px 18px;
   }
 
   .logo-section h2 {
@@ -734,25 +760,24 @@ textarea {
   }
 
   .logo-intro {
-    margin-bottom: 24px;
+    margin-bottom: 22px;
     font-size: 14px;
   }
 
   .logo-list {
-    gap: 12px;
+    gap: 18px;
   }
 
   .logo-card {
     flex-basis: 112px;
     width: 112px;
     height: 82px;
-    padding: 10px;
-    border-radius: 9px;
+    padding: 6px;
   }
 
   .logo-card img {
-    max-width: 92px;
-    height: 38px;
+    max-width: 100px;
+    height: 40px;
   }
 
   .btn,
