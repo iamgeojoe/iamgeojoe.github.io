@@ -1,5 +1,8 @@
 
-/* Update the footer year. */
+/* =========================================
+   FOOTER YEAR
+========================================= */
+
 const yearElement = document.getElementById("year");
 
 if (yearElement) {
@@ -7,7 +10,7 @@ if (yearElement) {
 }
 
 /* =========================================
-   HORIZONTAL COMPANY LOGO CAROUSEL
+   CONTINUOUS RIGHT-TO-LEFT LOGO CAROUSEL
 ========================================= */
 
 (() => {
@@ -114,145 +117,158 @@ if (yearElement) {
 
   const track = document.querySelector(".logo-track");
   const list = document.querySelector(".logo-list");
-  const previousButton = document.querySelector(".logo-prev");
-  const nextButton = document.querySelector(".logo-next");
-  const status = document.querySelector(".logo-carousel-status");
 
   if (!track || !list) return;
 
-  let loadedFiles = [];
-  let currentIndex = 0;
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  );
+
+  let animationFrame;
+  let previousTime = 0;
+  let offset = 0;
+  let loopWidth = 0;
+  let paused = reducedMotion.matches;
   let resizeTimer;
 
-  function visibleCount() {
-    if (window.matchMedia("(max-width: 560px)").matches) return 2;
-    if (window.matchMedia("(max-width: 850px)").matches) return 3;
-    return 5;
-  }
+  const SPEED = 35; // Pixels per second
 
-  function maxIndex() {
-    return Math.max(0, loadedFiles.length - visibleCount());
-  }
+  function loadImage(file) {
+    return new Promise(resolve => {
+      const image = new Image();
 
-  function updateCarousel() {
-    const firstCard = list.querySelector(".logo-card");
+      image.onload = () => resolve({ file, image });
+      image.onerror = () => resolve(null);
 
-    if (firstCard) {
-      const gap = parseFloat(getComputedStyle(list).columnGap) || 0;
-      const cardWidth = firstCard.getBoundingClientRect().width;
-      const distance = currentIndex * (cardWidth + gap);
-
-      list.style.transform = `translateX(-${distance}px)`;
-    }
-
-    const pageCount = Math.max(
-      1,
-      Math.ceil(loadedFiles.length / visibleCount())
-    );
-
-    const activePage = Math.min(
-      pageCount - 1,
-      Math.floor(currentIndex / visibleCount())
-    );
-
-    if (status) {
-      if (status.children.length !== pageCount) {
-        status.replaceChildren(
-          ...Array.from({ length: pageCount }, () => {
-            const dot = document.createElement("span");
-            dot.className = "logo-status-dot";
-            return dot;
-          })
-        );
-      }
-
-      Array.from(status.children).forEach((dot, index) => {
-        dot.classList.toggle("is-active", index === activePage);
-        dot.setAttribute("aria-hidden", "true");
-      });
-    }
-
-    if (previousButton) {
-      previousButton.disabled = currentIndex <= 0;
-    }
-
-    if (nextButton) {
-      nextButton.disabled = currentIndex >= maxIndex();
-    }
-  }
-
-  function renderLogos() {
-    list.replaceChildren();
-
-    loadedFiles.forEach(file => {
-      const card = document.createElement("div");
-      card.className = "logo-card";
-
-      const image = document.createElement("img");
       image.src = `assets/portfolio-logos/${file}`;
       image.alt = file
         .replace(/\.[^.]+$/, "")
         .replace(/[_-]+/g, " ");
-      image.loading = "lazy";
       image.decoding = "async";
-
-      card.appendChild(image);
-      list.appendChild(card);
-    });
-
-    currentIndex = Math.min(currentIndex, maxIndex());
-    updateCarousel();
-  }
-
-  function moveCarousel(direction) {
-    const step = visibleCount();
-
-    currentIndex = Math.max(
-      0,
-      Math.min(maxIndex(), currentIndex + direction * step)
-    );
-
-    updateCarousel();
-  }
-
-  if (previousButton) {
-    previousButton.addEventListener("click", () => {
-      moveCarousel(-1);
     });
   }
 
-  if (nextButton) {
-    nextButton.addEventListener("click", () => {
-      moveCarousel(1);
+  function createCard(file, image) {
+    const card = document.createElement("div");
+    card.className = "logo-card";
+
+    image.alt = image.alt || file;
+    image.loading = "eager";
+
+    card.appendChild(image);
+    return card;
+  }
+
+  function renderCards(files, loadedImages) {
+    list.replaceChildren();
+
+    files.forEach(file => {
+      const image = loadedImages.get(file);
+
+      if (image) {
+        list.appendChild(createCard(file, image.cloneNode()));
+      }
+    });
+
+    // Duplicate the complete logo row for seamless looping.
+    files.forEach(file => {
+      const image = loadedImages.get(file);
+
+      if (image) {
+        const card = createCard(file, image.cloneNode());
+        card.setAttribute("aria-hidden", "true");
+        card.querySelector("img").alt = "";
+        list.appendChild(card);
+      }
     });
   }
+
+  function measure() {
+    const cards = [...list.children];
+    const half = Math.floor(cards.length / 2);
+
+    if (!half) return;
+
+    loopWidth = 0;
+
+    for (let i = 0; i < half; i++) {
+      loopWidth += cards[i].getBoundingClientRect().width;
+
+      if (i < half - 1) {
+        loopWidth += parseFloat(
+          getComputedStyle(list).columnGap
+        ) || 0;
+      }
+    }
+
+    offset = loopWidth > 0 ? offset % loopWidth : 0;
+    list.style.transform = `translateX(-${offset}px)`;
+  }
+
+  function animate(time) {
+    if (!previousTime) previousTime = time;
+
+    const delta = Math.min((time - previousTime) / 1000, 0.05);
+    previousTime = time;
+
+    if (!paused && loopWidth > 0) {
+      offset = (offset + SPEED * delta) % loopWidth;
+      list.style.transform = `translateX(-${offset}px)`;
+    }
+
+    animationFrame = requestAnimationFrame(animate);
+  }
+
+  Promise.all(logoFiles.map(loadImage)).then(results => {
+    const loadedImages = new Map();
+
+    results.forEach(result => {
+      if (result) loadedImages.set(result.file, result.image);
+    });
+
+    const validFiles = logoFiles.filter(file => loadedImages.has(file));
+
+    if (!validFiles.length) {
+      track.innerHTML =
+        '<p class="logo-error">Company logos could not be loaded. Please check assets/portfolio-logos.</p>';
+      return;
+    }
+
+    renderCards(validFiles, loadedImages);
+
+    requestAnimationFrame(() => {
+      measure();
+      animationFrame = requestAnimationFrame(animate);
+    });
+  });
+
+  track.addEventListener("mouseenter", () => {
+    paused = true;
+  });
+
+  track.addEventListener("mouseleave", () => {
+    paused = reducedMotion.matches;
+  });
+
+  track.addEventListener("focusin", () => {
+    paused = true;
+  });
+
+  track.addEventListener("focusout", event => {
+    if (!track.contains(event.relatedTarget)) {
+      paused = reducedMotion.matches;
+    }
+  });
+
+  reducedMotion.addEventListener("change", event => {
+    paused = event.matches;
+  });
 
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
 
     resizeTimer = setTimeout(() => {
-      currentIndex = Math.min(currentIndex, maxIndex());
-      updateCarousel();
-    }, 120);
-  });
-
-  Promise.all(
-    logoFiles.map(file => {
-      return new Promise(resolve => {
-        const image = new Image();
-
-        image.onload = () => resolve(file);
-        image.onerror = () => resolve(null);
-        image.src = `assets/portfolio-logos/${file}`;
-      });
-    })
-  ).then(results => {
-    loadedFiles = results.filter(Boolean);
-    renderLogos();
-
-    if (loadedFiles.length === 0) {
-      track.innerHTML =
-        '<p class="logo-error">Company logos could not be loaded. Check the assets/portfolio-logos folder.</p>';
-    }
+      measure();
+    }, 150);
   });
 })();
